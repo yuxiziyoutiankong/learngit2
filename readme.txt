@@ -55,3 +55,5 @@ modify in the master to test merge conflict!!
 git checkout -b project2
 than git commit 
  
+
+stashone is built but not commit because one bug is coming.i must deal it!
