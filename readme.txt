@@ -49,4 +49,9 @@ at main branch master commit new git start!
 
 project1 is down1;
 
+ 
 modify in the master to test merge conflict!!
+ 
+git checkout -b project2
+than git commit 
+ 
