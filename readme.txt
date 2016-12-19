@@ -55,3 +55,4 @@ modify in the master to test merge conflict!!
 git checkout -b project2
 than git commit 
  
+stashtwo is checkouted for figuring out bug!
