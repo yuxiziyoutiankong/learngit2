@@ -1,0 +1,227 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+	<meta charset="UTF-8">
+	<title>封装框架</title>
+	<style>
+		html {
+			font-size: 30px;
+			color: maroon;
+			text-shadow: 1px 1px 2px red;
+		}
+		#box {
+			width: 300px;
+			height: 300px;
+			background-color: blue;
+		}
+	</style>
+</head>
+<body>
+	<pre>
+		解耦和：分工；
+		冒泡：
+		短路运算符：|| &&；
+		  ||：如果左边的true就返回右边；
+		  &&：如果左边返回true就返回右边，否则返回左边；
+
+	</pre>
+	<div id="box"></div>
+	<div class="big">alsdfjalsjfaslkdfj</div>
+</body>
+<script>
+	// var $$ = function(){};
+	// $$.prototype = {
+	// 	extend:function(tar,source){
+	// 		for(var i in source){
+	// 			tar[i] = source[i];
+	// 		}
+	// 		return tar;
+	// 	}
+	// }
+	// $$.extend($$,{
+	// 	$id:function(id){
+	// 		return document.getElementById(id);
+	// 	},
+	// 	$tagname:function(tagname){
+	// 		return document.getElementById(tagname);
+	// 	},
+	// })
+	
+	/*jquery事件的封装*/
+	var $$ = function(){};
+	$$.prototype = {
+		$id:function(id){
+			return document.getElementById(id);
+		},
+		$tagname:function(tagname){
+			return document.getElementsByTagName(tagname);
+		},
+		// isString:function(id){
+		// 	if(id instanceOf String){
+		// 		return true;
+		// 	}else {
+		// 		return false; 
+		// 	}
+		// },
+		extend:function(tar,source){
+			for(i in source){
+				tar[i] = source[i];
+			};
+			return tar;
+		},
+	};
+	var $$ = new $$();
+	// 事件绑定
+	$$.extend($$,{
+		on:function(id,type,fn){
+			var dom = $$.isString(id)?document.getElementById(id):id;
+			if(dom.addEventListener){
+				return dom.addEventListener(type,fn,false);
+			};
+			if(dom.attachEvent){
+				return dom.attachEvent('on'+type,fn);
+			};
+		},
+		mouseenter:function(id,fn){
+			var dom = document.getElementById(id);
+			return dom.onmouseenter = fn;
+		},
+		mouseleave:function(id,fn){
+			var dom = document.getElementById(id);
+			return dom.onmouseleave = fn;
+		},
+		// hover事件的绑定
+		hover:function(id,fnover,fnout){
+			if(fnover){
+				$$.on(id,'mouseover',fnover);
+			};
+			if(fnout){
+				$$.on(id,'mouseout',fnout);
+			}
+		},
+		getEvent:function(e){
+			var e = e || window.event;
+			return e;
+		},
+		setTarget:function(e){
+			getEvent(e);
+			return target = e.target || window.srcEvent;
+		},
+		delegate:function(pid,eventType,selector,fn){
+			function handle(){
+				var target = setTarget(e);
+				var parent = $$.$id(pid);
+				if(target.nodeName.toLowerCase === selector || target.id = selector || target.className.indexOf(selector) !== -1){
+					/*在事件冒泡的时候，会以此遍历每个子孙后代，如果找到对应的元素，则执行
+					如下函数：
+					1：为什么要使用call，因为call可以改变this的指向；
+					2： 函数中的this默认指向window,而我们希望它指向当前dom元素本身*/
+					fn.call(target);
+					/*当我们给父亲绑定一个事件，他的执行顺序：先捕获到目标元素，然后事件再冒泡，这里是给父亲绑定一个事件*/
+					
+				}
+			};
+			parent[eventType] = handle;					
+		},
+		/*缩小搜索范围，提高性能*/
+		$tag:function(context,tag){
+			if(typeof context === 'string'){
+				context = $$.$id(context);
+			};
+
+			if(context){
+				return context.getElementsByTagName(tag);
+			}else {
+				return document.getElementsByTagName(tag);
+			}
+		},
+		/*由于IE6不支持document.getElementsByClassName(classname),所以要用其他方法来实现*/
+		$className:function(context,classname){
+			/*先获取所有的元素*/
+			if(context instanceof String || typeof context == 'string'){
+				context = document.getElementById('context');
+			};
+			if(context){
+				if(context.getElementsByClassName){
+					return context.getElementsByClassName(classname);
+				}else {
+					var arr = [];
+					var ele = document.getElementsByTagName('*');
+					for(var i = 0;i<ele.length;i++){
+						if(ele[i].className.indexOf(classname) !== -1){
+							arr.push(ele[i]);	
+							return arr;
+						}
+					}
+				}
+			}else {
+			 	if(document.getElementsByClassName){
+					return document.getElementsByClassName(classname);
+				}else {
+					var arr = [];
+					var ele = document.getElementsByTagName('*');
+					for(var i = 0;i<ele.length;i++){
+						if(ele[i].className.indexOf(classname) !== -1){
+							arr.push(ele[i]);	
+							return arr;
+						}
+					}
+				}
+			};
+		},
+			
+	});
+	var box = $$.$id('box');
+
+	// $$.mouseenter('box',function(){
+	// 	this.style.backgroundColor = 'yellow';
+	// });
+
+	/*$$.on('box','mouseenter',function(){
+		this.style.backgroundColor = 'red';
+	});
+	*/
+	// $$.hover('box',function(){
+	// 	this.style.backgroundColor = 'maroon';
+	// },function(){
+
+	// 	this.style.backgroundColor = 'yellow';
+	// })
+	// on('div','click',function(){
+	// 	this.style.background = 'blue';
+	// });
+
+	// function on(id,type,fn){
+	// 	var dom = document.getElementById(id);
+	// 	if(dom.addEventListener){'ajax_js.html'
+	// 		return dom.addEventListener(type,fn,false);
+	// 	}else {
+	// 		return dom.attachEvent('on'+type,fn);
+	// 	}
+	// }
+	// $$.extend($$,{
+	// 	hover:function(id,fnover,fnout){
+	// 		if(fnover){
+	// 			$$.on(id,'mouseover',fnover);
+	// 		}
+	// 		if(fnout){
+	// 			$$.on(id,'mouseout',fnout);
+	// 		}
+	// 	}
+	// })\
+	 
+	
+	/*call更改this指向实例：*/
+	!function(){
+		function fn(){
+			this.style.backgroundColor = 'black';
+		}
+		fn.call(box);
+		var arr1 = [1,3,4,5];
+		var arr2 = [2,4,5,1];
+		Array.prototype.push.apply(arr1,arr2);
+		console.log(arr1);
+	}();
+	
+</script>
+</html>
